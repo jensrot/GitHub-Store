@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
@@ -22,9 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.core.presentation.components.ExpressiveCard
+import zed.rainxch.githubstore.core.presentation.res.Res
+import zed.rainxch.githubstore.core.presentation.res.section_network
 import zed.rainxch.profile.presentation.ProfileAction
 import zed.rainxch.profile.presentation.ProfileState
+import zed.rainxch.profile.presentation.components.SectionHeader
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun LazyListScope.othersSection(
@@ -32,6 +38,12 @@ fun LazyListScope.othersSection(
     onAction: (ProfileAction) -> Unit
 ) {
     item {
+        SectionHeader(
+            text = "Storage".uppercase()
+        )
+
+        Spacer(Modifier.height(8.dp))
+
         ExpressiveCard {
             Row(
                 modifier = Modifier
@@ -44,8 +56,8 @@ fun LazyListScope.othersSection(
                     imageVector = Icons.Outlined.Storage,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(44.dp))
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(36.dp))
                         .background(MaterialTheme.colorScheme.surfaceContainerLow)
                         .padding(8.dp)
                 )

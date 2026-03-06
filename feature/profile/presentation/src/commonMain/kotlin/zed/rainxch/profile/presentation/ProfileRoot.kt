@@ -161,7 +161,7 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
 
             settings(
@@ -170,7 +170,7 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
 
             networkSection(
@@ -179,7 +179,7 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
 
             othersSection(
@@ -188,7 +188,7 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
 
             about(
@@ -197,7 +197,7 @@ fun ProfileScreen(
             )
 
             item {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
             }
 
             if (state.isUserLoggedIn) {
