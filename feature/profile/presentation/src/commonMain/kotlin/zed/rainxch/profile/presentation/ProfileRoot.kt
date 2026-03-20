@@ -92,6 +92,12 @@ fun ProfileRoot(
                     snackbarState.showSnackbar(event.message)
                 }
             }
+
+            ProfileEvent.OnSeenHistoryCleared -> {
+                coroutineScope.launch {
+                    snackbarState.showSnackbar(getString(Res.string.seen_history_cleared))
+                }
+            }
         }
     }
 

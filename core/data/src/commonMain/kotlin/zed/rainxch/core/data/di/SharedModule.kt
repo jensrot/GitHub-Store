@@ -15,6 +15,7 @@ import zed.rainxch.core.data.local.db.AppDatabase
 import zed.rainxch.core.data.local.db.dao.CacheDao
 import zed.rainxch.core.data.local.db.dao.FavoriteRepoDao
 import zed.rainxch.core.data.local.db.dao.InstalledAppDao
+import zed.rainxch.core.data.local.db.dao.SeenRepoDao
 import zed.rainxch.core.data.local.db.dao.StarredRepoDao
 import zed.rainxch.core.data.local.db.dao.UpdateHistoryDao
 import zed.rainxch.core.data.logging.KermitLogger
@@ -26,6 +27,7 @@ import zed.rainxch.core.data.repository.FavouritesRepositoryImpl
 import zed.rainxch.core.data.repository.InstalledAppsRepositoryImpl
 import zed.rainxch.core.data.repository.ProxyRepositoryImpl
 import zed.rainxch.core.data.repository.RateLimitRepositoryImpl
+import zed.rainxch.core.data.repository.SeenReposRepositoryImpl
 import zed.rainxch.core.data.repository.StarredRepositoryImpl
 import zed.rainxch.core.data.repository.TweaksRepositoryImpl
 import zed.rainxch.core.domain.getPlatform
@@ -37,6 +39,7 @@ import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.ProxyRepository
 import zed.rainxch.core.domain.repository.RateLimitRepository
+import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.StarredRepository
 import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
@@ -91,6 +94,12 @@ val coreModule =
         single<TweaksRepository> {
             TweaksRepositoryImpl(
                 preferences = get(),
+            )
+        }
+
+        single<SeenReposRepository> {
+            SeenReposRepositoryImpl(
+                seenRepoDao = get(),
             )
         }
 
@@ -202,5 +211,9 @@ val databaseModule =
 
         single<CacheDao> {
             get<AppDatabase>().cacheDao
+        }
+
+        single<SeenRepoDao> {
+            get<AppDatabase>().seenRepoDao
         }
     }

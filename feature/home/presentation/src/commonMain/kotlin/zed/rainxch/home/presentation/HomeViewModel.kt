@@ -21,6 +21,7 @@ import zed.rainxch.core.domain.model.DiscoveryPlatform
 import zed.rainxch.core.domain.model.Platform
 import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
+import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.StarredRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.repository.TweaksRepository
@@ -42,6 +43,7 @@ class HomeViewModel(
     private val logger: GitHubStoreLogger,
     private val shareManager: ShareManager,
     private val tweaksRepository: TweaksRepository,
+    private val seenReposRepository: SeenReposRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var currentJob: Job? = null
@@ -61,6 +63,8 @@ class HomeViewModel(
                     observeFavourites()
                     observeStarredRepos()
                     observeLiquidGlassEnabled()
+                    observeSeenRepos()
+                    observeHideSeenEnabled()
 
                     hasLoadedInitialData = true
                 }
@@ -198,6 +202,8 @@ class HomeViewModel(
                                 .first()
                                 .associateBy { it.repoId }
 
+                        val seenIds = _state.value.seenRepoIds
+
                         val newReposWithStatus =
                             paginatedRepos.repos.map { repo ->
                                 val app = installedAppsMap[repo.id]
@@ -208,6 +214,7 @@ class HomeViewModel(
                                     isInstalled = app != null,
                                     isFavourite = favourite != null,
                                     isStarred = starred != null,
+                                    isSeen = repo.id in seenIds,
                                     isUpdateAvailable = app?.isUpdateAvailable ?: false,
                                     repository = repo.toUi(),
                                 )
@@ -361,6 +368,31 @@ class HomeViewModel(
                 _state.update {
                     it.copy(isLiquidGlassEnabled = enabled)
                 }
+            }
+        }
+    }
+
+    private fun observeSeenRepos() {
+        viewModelScope.launch {
+            seenReposRepository.getAllSeenRepoIds().collect { ids ->
+                _state.update { current ->
+                    current.copy(
+                        seenRepoIds = ids,
+                        repos =
+                            current.repos
+                                .map { repo ->
+                                    repo.copy(isSeen = repo.repository.id in ids)
+                                }.toImmutableList(),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun observeHideSeenEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getHideSeenEnabled().collect { enabled ->
+                _state.update { it.copy(isHideSeenEnabled = enabled) }
             }
         }
     }

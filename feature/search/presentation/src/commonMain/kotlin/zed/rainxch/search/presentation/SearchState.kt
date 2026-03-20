@@ -18,6 +18,8 @@ data class SearchState(
     val selectedLanguage: ProgrammingLanguageUi = ProgrammingLanguageUi.All,
     val isLoading: Boolean = false,
     val isLiquidGlassEnabled: Boolean = true,
+    val isHideSeenEnabled: Boolean = false,
+    val seenRepoIds: Set<Long> = emptySet(),
     val isLoadingMore: Boolean = false,
     val errorMessage: String? = null,
     val hasMorePages: Boolean = true,

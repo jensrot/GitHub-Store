@@ -33,6 +33,7 @@ import zed.rainxch.core.domain.model.RateLimitException
 import zed.rainxch.core.domain.network.Downloader
 import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
+import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.StarredRepository
 import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.Installer
@@ -90,6 +91,7 @@ class DetailsViewModel(
     private val logger: GitHubStoreLogger,
     private val isComingFromUpdate: Boolean,
     private val tweaksRepository: TweaksRepository,
+    private val seenReposRepository: SeenReposRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var currentDownloadJob: Job? = null
@@ -160,6 +162,8 @@ class DetailsViewModel(
                     } else {
                         detailsRepository.getRepositoryById(repositoryId)
                     }
+                launch { seenReposRepository.markAsSeen(repo.id) }
+
                 val isFavoriteDeferred =
                     async {
                         try {

@@ -244,7 +244,17 @@ private fun MainState(
     bottomNavLiquidState: LiquidState,
     homeTopBarLiquidState: LiquidState,
 ) {
-    if (state.repos.isNotEmpty()) {
+    val visibleRepos by remember(state.repos, state.isHideSeenEnabled, state.seenRepoIds) {
+        derivedStateOf {
+            if (state.isHideSeenEnabled && state.seenRepoIds.isNotEmpty()) {
+                state.repos.filter { it.repository.id !in state.seenRepoIds }
+            } else {
+                state.repos
+            }
+        }
+    }
+
+    if (visibleRepos.isNotEmpty()) {
         LazyVerticalStaggeredGrid(
             state = listState,
             columns = StaggeredGridCells.Adaptive(350.dp),
@@ -254,7 +264,7 @@ private fun MainState(
             modifier = Modifier.fillMaxSize(),
         ) {
             items(
-                items = state.repos,
+                items = visibleRepos,
                 key = { it.repository.id },
                 contentType = { "repo" },
             ) { discoveryRepository ->

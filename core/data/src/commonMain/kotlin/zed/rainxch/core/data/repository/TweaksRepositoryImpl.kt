@@ -26,6 +26,7 @@ class TweaksRepositoryImpl(
     private val UPDATE_CHECK_INTERVAL_KEY = longPreferencesKey("update_check_interval_hours")
     private val INCLUDE_PRE_RELEASES_KEY = booleanPreferencesKey("include_pre_releases")
     private val LIQUID_GLASS_ENABLED_KEY = booleanPreferencesKey("liquid_glass_enabled")
+    private val HIDE_SEEN_ENABLED_KEY = booleanPreferencesKey("hide_seen_enabled")
 
     override fun getThemeColor(): Flow<AppTheme> =
         preferences.data.map { prefs ->
@@ -141,6 +142,17 @@ class TweaksRepositoryImpl(
     override suspend fun setLiquidGlassEnabled(enabled: Boolean) {
         preferences.edit { prefs ->
             prefs[LIQUID_GLASS_ENABLED_KEY] = enabled
+        }
+    }
+
+    override fun getHideSeenEnabled(): Flow<Boolean> =
+        preferences.data.map { prefs ->
+            prefs[HIDE_SEEN_ENABLED_KEY] ?: false
+        }
+
+    override suspend fun setHideSeenEnabled(enabled: Boolean) {
+        preferences.edit { prefs ->
+            prefs[HIDE_SEEN_ENABLED_KEY] = enabled
         }
     }
 

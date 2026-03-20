@@ -94,5 +94,11 @@ sealed interface ProfileAction {
         val enabled: Boolean,
     ) : ProfileAction
 
+    data class OnHideSeenToggled(
+        val enabled: Boolean,
+    ) : ProfileAction
+
+    data object OnClearSeenRepos : ProfileAction
+
     data object OnSponsorClick : ProfileAction
 }

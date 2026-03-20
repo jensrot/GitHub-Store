@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import zed.rainxch.core.domain.model.ProxyConfig
 import zed.rainxch.core.domain.repository.ProxyRepository
+import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.InstallerStatusProvider
 import zed.rainxch.core.domain.system.UpdateScheduleManager
@@ -32,6 +33,7 @@ class ProfileViewModel(
     private val installerStatusProvider: InstallerStatusProvider,
     private val proxyRepository: ProxyRepository,
     private val updateScheduleManager: UpdateScheduleManager,
+    private val seenReposRepository: SeenReposRepository,
 ) : ViewModel() {
     private var userProfileJob: Job? = null
 
@@ -51,6 +53,7 @@ class ProfileViewModel(
                     loadUpdateCheckInterval()
                     loadIncludePreReleases()
                     loadLiquidGlassEnabled()
+                    loadHideSeenEnabled()
 
                     observeLoggedInStatus()
 
@@ -257,6 +260,16 @@ class ProfileViewModel(
         }
     }
 
+    private fun loadHideSeenEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getHideSeenEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(isHideSeenEnabled = enabled)
+                }
+            }
+        }
+    }
+
     private fun loadIncludePreReleases() {
         viewModelScope.launch {
             tweaksRepository.getIncludePreReleases().collect { enabled ->
@@ -426,6 +439,19 @@ class ProfileViewModel(
             is ProfileAction.OnAutoDetectClipboardToggled -> {
                 viewModelScope.launch {
                     tweaksRepository.setAutoDetectClipboardLinks(action.enabled)
+                }
+            }
+
+            is ProfileAction.OnHideSeenToggled -> {
+                viewModelScope.launch {
+                    tweaksRepository.setHideSeenEnabled(action.enabled)
+                }
+            }
+
+            ProfileAction.OnClearSeenRepos -> {
+                viewModelScope.launch {
+                    seenReposRepository.clearAll()
+                    _events.send(ProfileEvent.OnSeenHistoryCleared)
                 }
             }
 

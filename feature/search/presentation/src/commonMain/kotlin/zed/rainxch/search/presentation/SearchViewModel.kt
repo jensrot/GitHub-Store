@@ -22,6 +22,7 @@ import zed.rainxch.core.domain.model.Platform
 import zed.rainxch.core.domain.model.RateLimitException
 import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
+import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.StarredRepository
 import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
@@ -51,6 +52,7 @@ class SearchViewModel(
     private val platform: Platform,
     private val clipboardHelper: ClipboardHelper,
     private val tweaksRepository: TweaksRepository,
+    private val seenReposRepository: SeenReposRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var currentSearchJob: Job? = null
@@ -73,6 +75,8 @@ class SearchViewModel(
                     observeFavouriteApps()
                     observeStarredRepos()
                     observeLiquidGlassEnabled()
+                    observeSeenRepos()
+                    observeHideSeenEnabled()
                     observeClipboardSetting()
                     checkClipboardForLinks()
 
@@ -92,6 +96,31 @@ class SearchViewModel(
                         isLiquidGlassEnabled = enabled,
                     )
                 }
+            }
+        }
+    }
+
+    private fun observeSeenRepos() {
+        viewModelScope.launch {
+            seenReposRepository.getAllSeenRepoIds().collect { ids ->
+                _state.update { current ->
+                    current.copy(
+                        seenRepoIds = ids,
+                        repositories =
+                            current.repositories
+                                .map { repo ->
+                                    repo.copy(isSeen = repo.repository.id in ids)
+                                }.toImmutableList(),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun observeHideSeenEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getHideSeenEnabled().collect { enabled ->
+                _state.update { it.copy(isHideSeenEnabled = enabled) }
             }
         }
     }
@@ -277,6 +306,8 @@ class SearchViewModel(
                         ).collect { paginatedRepos ->
                             currentPage = paginatedRepos.nextPageIndex
 
+                            val seenIds = _state.value.seenRepoIds
+
                             val newReposWithStatus =
                                 paginatedRepos.repos.map { repo ->
                                     val app = installedMap[repo.id]
@@ -287,6 +318,7 @@ class SearchViewModel(
                                         isInstalled = app != null,
                                         isFavourite = favourite != null,
                                         isStarred = starred != null,
+                                        isSeen = repo.id in seenIds,
                                         isUpdateAvailable = app?.isUpdateAvailable ?: false,
                                         repository = repo.toUi(),
                                     )

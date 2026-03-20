@@ -145,6 +145,25 @@ fun LazyListScope.appearanceSection(
                 onAction(ProfileAction.OnAutoDetectClipboardToggled(enabled))
             },
         )
+
+        VerticalSpacer(8.dp)
+
+        ToggleSettingCard(
+            title = stringResource(Res.string.hide_seen_title),
+            description = stringResource(Res.string.hide_seen_description),
+            checked = state.isHideSeenEnabled,
+            onCheckedChange = { enabled ->
+                onAction(ProfileAction.OnHideSeenToggled(enabled))
+            },
+        )
+
+        VerticalSpacer(8.dp)
+
+        ClearSeenHistoryCard(
+            onClick = {
+                onAction(ProfileAction.OnClearSeenRepos)
+            },
+        )
     }
 }
 
@@ -428,6 +447,42 @@ private fun ToggleSettingCard(
                 checked = checked,
                 onCheckedChange = null,
             )
+        }
+    }
+}
+
+@Composable
+private fun ClearSeenHistoryCard(
+    onClick: () -> Unit,
+) {
+    ExpressiveCard {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onClick)
+                    .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(
+                    text = stringResource(Res.string.clear_seen_history),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                )
+
+                VerticalSpacer(4.dp)
+
+                Text(
+                    text = stringResource(Res.string.clear_seen_history_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
