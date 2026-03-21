@@ -2,13 +2,11 @@ package zed.rainxch.home.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,12 +17,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -85,6 +85,7 @@ import zed.rainxch.core.presentation.locals.LocalBottomNavigationHeight
 import zed.rainxch.core.presentation.locals.LocalBottomNavigationLiquid
 import zed.rainxch.core.presentation.theme.GithubStoreTheme
 import zed.rainxch.core.presentation.utils.ObserveAsEvents
+import zed.rainxch.core.presentation.utils.isScrollingUp
 import zed.rainxch.core.presentation.utils.toIcons
 import zed.rainxch.core.presentation.utils.toLabel
 import zed.rainxch.githubstore.core.presentation.res.*
@@ -185,11 +186,9 @@ fun HomeScreen(
         }
     }
 
-    val currentOnAction by rememberUpdatedState(onAction)
-
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
-            currentOnAction(HomeAction.LoadMore)
+            onAction(HomeAction.LoadMore)
         }
     }
 
@@ -227,20 +226,16 @@ fun HomeScreen(
             ) {
                 AnimatedVisibility(
                     visible = isHeaderVisible,
-                    enter = slideInVertically(
-                        initialOffsetY = { -it },
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessMediumLow,
-                        ),
-                    ) + fadeIn(tween(200)),
-                    exit = slideOutVertically(
-                        targetOffsetY = { -it },
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessMediumLow,
-                        ),
-                    ) + fadeOut(tween(150)),
+                    enter =
+                        expandVertically(
+                            expandFrom = Alignment.Top,
+                            animationSpec = tween(250),
+                        ) + fadeIn(tween(200)),
+                    exit =
+                        shrinkVertically(
+                            shrinkTowards = Alignment.Top,
+                            animationSpec = tween(200),
+                        ) + fadeOut(tween(150)),
                 ) {
                     Column {
                         HomeTopAppBar(
@@ -340,20 +335,22 @@ private fun TopicChips(
                         modifier = Modifier.size(18.dp),
                     )
                 },
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = containerColor,
-                    labelColor = labelColor,
-                    iconColor = labelColor,
-                    selectedContainerColor = containerColor,
-                    selectedLabelColor = labelColor,
-                    selectedLeadingIconColor = labelColor,
-                ),
-                border = FilterChipDefaults.filterChipBorder(
-                    borderColor = Color.Transparent,
-                    selectedBorderColor = Color.Transparent,
-                    enabled = true,
-                    selected = isSelected,
-                ),
+                colors =
+                    FilterChipDefaults.filterChipColors(
+                        containerColor = containerColor,
+                        labelColor = labelColor,
+                        iconColor = labelColor,
+                        selectedContainerColor = containerColor,
+                        selectedLabelColor = labelColor,
+                        selectedLeadingIconColor = labelColor,
+                    ),
+                border =
+                    FilterChipDefaults.filterChipBorder(
+                        borderColor = Color.Transparent,
+                        selectedBorderColor = Color.Transparent,
+                        enabled = true,
+                        selected = isSelected,
+                    ),
                 shape = RoundedCornerShape(12.dp),
             )
         }
@@ -604,6 +601,8 @@ private fun HomeTopAppBar(
             }
         },
         modifier = Modifier.padding(12.dp),
+        contentPadding = PaddingValues(),
+        windowInsets = WindowInsets(),
     )
 }
 
@@ -658,31 +657,6 @@ private fun PlatformsPopup(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-/**
- * Tracks scroll direction — returns true when the user is scrolling up
- * (or is at the very top of the list), false when scrolling down.
- */
-@Composable
-private fun LazyStaggeredGridState.isScrollingUp(): State<Boolean> {
-    var previousIndex by remember(this) { mutableIntStateOf(firstVisibleItemIndex) }
-    var previousScrollOffset by remember(this) { mutableIntStateOf(firstVisibleItemScrollOffset) }
-
-    return remember(this) {
-        derivedStateOf {
-            if (firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0) {
-                true // at the very top — always show header
-            } else if (previousIndex != firstVisibleItemIndex) {
-                previousIndex > firstVisibleItemIndex
-            } else {
-                previousScrollOffset >= firstVisibleItemScrollOffset
-            }.also {
-                previousIndex = firstVisibleItemIndex
-                previousScrollOffset = firstVisibleItemScrollOffset
             }
         }
     }
