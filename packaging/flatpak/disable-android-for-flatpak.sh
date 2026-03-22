@@ -9,17 +9,54 @@ set -euo pipefail
 
 echo "=== Disabling Android targets for Flatpak build ==="
 
+CONVENTION_DIR="build-logic/convention/src/main/kotlin"
+
 # Note: Step 0 (offline repo) removed — using --share=network instead
 
 # ─────────────────────────────────────────────────────────────────────
 # 1. Root build.gradle.kts — comment out Android plugin declarations
 # ─────────────────────────────────────────────────────────────────────
+echo "[0/7] Removing Android & non-essential dependencies from build-logic/convention/build.gradle.kts"
+sed -i \
+    -e '/compileOnly(libs.android.gradlePlugin)/d' \
+    -e '/compileOnly(libs.android.tools.common)/d' \
+    -e '/alias(libs.plugins.flatpak.gradle.generator)/d' \
+    -e '/flatpakGradleGenerator/,/^}/d' \
+    build-logic/convention/build.gradle.kts
+
+# Stub out Android utility files that reference Android SDK
+cat > "$CONVENTION_DIR/zed/rainxch/githubstore/convention/AndroidCompose.kt" << 'KOTLIN'
+package zed.rainxch.githubstore.convention
+
+import org.gradle.api.Project
+
+// Stubbed out for Flatpak build — no Android SDK available
+internal fun Project.configureAndroidCompose() {}
+KOTLIN
+
+cat > "$CONVENTION_DIR/zed/rainxch/githubstore/convention/KotlinAndroid.kt" << 'KOTLIN'
+package zed.rainxch.githubstore.convention
+
+import org.gradle.api.Project
+
+// Stubbed out for Flatpak build — no Android SDK available
+internal fun Project.configureKotlinAndroid(project: Project) {}
+KOTLIN
+
 echo "[1/7] Patching root build.gradle.kts"
 sed -i \
     -e 's|alias(libs.plugins.android.application)|// alias(libs.plugins.android.application)|' \
     -e 's|alias(libs.plugins.android.library)|// alias(libs.plugins.android.library)|' \
     -e 's|alias(libs.plugins.android.kotlin.multiplatform.library)|// alias(libs.plugins.android.kotlin.multiplatform.library)|' \
+    -e '/alias(libs.plugins.flatpak.gradle.generator)/d' \
+    -e '/flatpakGradleGenerator/,/^}/d' \
+    -e '/alias(libs.plugins.compose.hot.reload)/d' \
     build.gradle.kts
+
+# Also remove hot-reload from composeApp/build.gradle.kts
+sed -i \
+    -e '/alias(libs.plugins.compose.hot.reload)/d' \
+    composeApp/build.gradle.kts
 
 # ─────────────────────────────────────────────────────────────────────
 # 2. Convention plugins — replace Android plugin applies with no-ops

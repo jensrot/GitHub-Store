@@ -64,7 +64,6 @@ modules:
             f.write('    includeBuild(\"build-logic\")\n')
             f.write('    repositories {\n')
             f.write('        maven { url = uri(\"/run/build/githubstore/offline-repository\") }\n')
-            f.write('        gradlePluginPortal()\n')
             f.write('    }\n')
             f.write('}\n\n')
             f.write('dependencyResolutionManagement {\n')
@@ -72,9 +71,8 @@ modules:
             f.write('        maven { url = uri(\"/run/build/githubstore/offline-repository\") }\n')
             f.write('    }\n')
             f.write('}\n\n')
-            f.write('plugins {\n')
-            f.write('    id(\"org.gradle.toolchains.foojay-resolver-convention\") version \"1.0.0\"\n')
-            f.write('}\n\n')
+            # foojay-resolver-convention plugin removed — not needed in Flatpak
+            # (JAVA_HOME is set explicitly, no toolchain auto-download)
             for inc in includes:
                 f.write(inc)
         print('Rewrote root settings.gradle.kts for offline build')
@@ -86,13 +84,11 @@ modules:
             f.write('pluginManagement {\n')
             f.write('    repositories {\n')
             f.write('        maven { url = uri(\"/run/build/githubstore/offline-repository\") }\n')
-            f.write('        gradlePluginPortal()\n')
             f.write('    }\n')
             f.write('}\n\n')
             f.write('dependencyResolutionManagement {\n')
             f.write('    repositories {\n')
             f.write('        maven { url = uri(\"/run/build/githubstore/offline-repository\") }\n')
-            f.write('        gradlePluginPortal()\n')
             f.write('    }\n\n')
             f.write('    versionCatalogs {\n')
             f.write('        create(\"libs\") {\n')
@@ -142,3 +138,4 @@ modules:
       # Pre-downloaded Gradle/Maven dependencies for offline build
       - flatpak-sources.json
       - flatpak-sources-convention.json
+      - flatpak-sources-manual.json
