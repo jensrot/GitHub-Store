@@ -109,9 +109,11 @@ class AuthenticationViewModel(
                 _events.trySend(AuthenticationEvents.OnNavigateToMain)
             }
 
-            AuthenticationAction.PollNow,
-            AuthenticationAction.OnResumed,
-            -> {
+            AuthenticationAction.PollNow -> {
+                forcePollNow()
+            }
+
+            AuthenticationAction.OnResumed -> {
                 tryPollIfReady()
             }
         }
@@ -155,6 +157,20 @@ class AuthenticationViewModel(
         val loginState = _state.value.loginState
         if (loginState is AuthLoginState.DevicePrompt && !_state.value.isPolling) {
             pollOnce(loginState.start.deviceCode)
+        }
+    }
+
+    private fun forcePollNow() {
+        val loginState = _state.value.loginState
+        if (loginState is AuthLoginState.DevicePrompt) {
+            val deviceCode = loginState.start.deviceCode
+            logger.debug("Manual poll requested (isPolling=${_state.value.isPolling}, pollingJobActive=${pollingJob?.isActive})")
+            // Restart background polling if it died
+            if (pollingJob?.isActive != true) {
+                logger.debug("Polling job was dead — restarting background polling")
+                startPolling(deviceCode)
+            }
+            pollOnce(deviceCode)
         }
     }
 
@@ -245,6 +261,7 @@ class AuthenticationViewModel(
     private suspend fun doPoll(deviceCode: String) {
         _state.update { it.copy(isPolling = true) }
         try {
+            logger.debug("Polling device token (code=${deviceCode.take(8)}...)")
             val result =
                 withContext(Dispatchers.IO) {
                     authenticationRepository.pollDeviceTokenOnce(deviceCode)
@@ -253,6 +270,7 @@ class AuthenticationViewModel(
             result
                 .onSuccess { token ->
                     if (token != null) {
+                        logger.debug("Poll success — token received, navigating")
                         pollingJob?.cancel()
                         countdownJob?.cancel()
                         clearSavedState()
@@ -261,9 +279,11 @@ class AuthenticationViewModel(
                         }
                         _events.trySend(AuthenticationEvents.OnNavigateToMain)
                     } else {
+                        logger.debug("Poll result: still pending")
                         _state.update { it.copy(isPolling = false) }
                     }
                 }.onFailure { error ->
+                    logger.debug("Poll failed terminally: ${error.message}")
                     pollingJob?.cancel()
                     countdownJob?.cancel()
                     clearSavedState()

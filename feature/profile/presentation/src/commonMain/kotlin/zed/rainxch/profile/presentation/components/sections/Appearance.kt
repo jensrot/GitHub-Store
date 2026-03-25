@@ -182,7 +182,7 @@ private fun ThemeSelectionCard(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ThemeModeOption(
+private fun ThemeModeOption(
     icon: ImageVector,
     label: String,
     isSelected: Boolean,
@@ -241,7 +241,7 @@ fun ThemeModeOption(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ThemeColorCard(
+private fun ThemeColorCard(
     selectedThemeColor: AppTheme,
     onThemeColorSelected: (AppTheme) -> Unit,
 ) {
