@@ -51,10 +51,10 @@ object BottomNavigationUtils {
             ),
         )
 
-    fun allowedScreens(): List<GithubStoreGraph> =
+    fun allowedScreens(): List<BottomNavigationItem> =
         items()
             .filterNot {
                 getPlatform() != Platform.ANDROID &&
                     it.screen == GithubStoreGraph.AppsScreen
-            }.map { it.screen }
+            }
 }
