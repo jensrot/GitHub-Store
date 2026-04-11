@@ -486,7 +486,49 @@ class InstalledAppsRepositoryImpl(
         )
     }
 
-    private fun normalizeVersion(version: String): String = version.removePrefix("v").removePrefix("V").trim()
+    /**
+     * Reduces a tag or installed-version string to a form that
+     * [parseSemanticVersion] can actually digest.
+     *
+     * Why this matters: when a user sideloads an update from outside
+     * GitHub Store, [SyncInstalledAppsUseCase] picks up the new
+     * `versionName` from the Android package manager and writes it back
+     * to `installedVersion`. But the immediately-following
+     * [checkForUpdates] then compares that fresh value against the
+     * GitHub release `tagName`. If the maintainer publishes tags like
+     * `release-1.2.0` or `App-1.2.0` (any prefix that isn't just `v`),
+     * the OLD normalize-by-stripping-v left them alone, the equality
+     * check failed, and [isVersionNewer] fell through to a lexicographic
+     * comparison where the leading letter (`'r'` = 114) is "greater
+     * than" the digit (`'1'` = 49), incorrectly re-flagging the update.
+     *
+     * The new normalization tries, in order:
+     *   1. Strip leading `v` / `V`
+     *   2. Drop `+build` metadata (semver says it's ignored for ordering)
+     *   3. If the result is still not parseable, extract the first
+     *      dotted-digit substring (optionally followed by a `-pre`
+     *      identifier) and use that.
+     *
+     * Examples:
+     *   `v1.2.3`               → `1.2.3`
+     *   `1.2.3+sha.abcd`       → `1.2.3`
+     *   `1.2.3-rc1`            → `1.2.3-rc1`        (preserved — affects ordering)
+     *   `release-1.2.0`        → `1.2.0`
+     *   `App-v1.2.0-stable`    → `1.2.0-stable`
+     *   `build-2025.04.10`     → `2025.04.10`
+     *   `not-a-version`        → `not-a-version`    (unchanged — let caller fall back)
+     */
+    private fun normalizeVersion(version: String): String {
+        val cleaned = version.trim().removePrefix("v").removePrefix("V").trim()
+        val withoutBuildMetadata = cleaned.substringBefore('+')
+        if (parseSemanticVersion(withoutBuildMetadata) != null) {
+            return withoutBuildMetadata
+        }
+        val match =
+            Regex("""\d+(?:\.\d+)*(?:-[\w.]+)?""")
+                .find(withoutBuildMetadata)
+        return match?.value ?: withoutBuildMetadata
+    }
 
     /**
      * Compare two version strings and return true if [candidate] is newer than [current].
