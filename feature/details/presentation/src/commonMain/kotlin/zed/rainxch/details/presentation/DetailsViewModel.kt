@@ -1479,20 +1479,13 @@ class DetailsViewModel(
 
             when (validationResult) {
                 is ApkValidationResult.ExtractionFailed -> {
-                    logger.error("Failed to extract APK info for $assetName")
-                    _state.value =
-                        _state.value.copy(
-                            downloadStage = DownloadStage.IDLE,
-                            installError = "Failed to verify APK package info",
-                        )
-                    currentAssetName = null
-                    appendLog(
-                        assetName = assetName,
-                        size = sizeBytes,
-                        tag = releaseTag,
-                        result = Error("Failed to extract APK info"),
+                    // Don't block installation — proceed without
+                    // validation (same as the Shizuku path).
+                    // PackageEventReceiver will sync the DB post-install.
+                    logger.warn(
+                        "Could not extract APK info for $assetName, " +
+                            "proceeding with unvalidated install",
                     )
-                    return
                 }
 
                 is ApkValidationResult.PackageMismatch -> {
@@ -1667,9 +1660,12 @@ class DetailsViewModel(
     ) {
         currentDownloadJob?.cancel()
         val packageKey = orchestratorKey()
-        val asset = _state.value.primaryAsset
-        val repository = _state.value.repository
-        if (asset == null || repository == null) return
+        val repository = _state.value.repository ?: return
+        // Use the exact asset the user tapped, not the auto-picked primary.
+        val asset = _state.value.selectedRelease?.assets
+            ?.find { it.downloadUrl == downloadUrl }
+            ?: _state.value.primaryAsset
+            ?: return
         currentAssetName = assetName
 
         appendLog(

@@ -83,7 +83,14 @@ class AndroidInstallerInfoExtractor(
         // Retry without signing — the fingerprint will be extracted
         // separately in extractSigningFingerprint.
         val minimalFlags = PackageManager.GET_META_DATA
-        return getPackageArchiveInfoCompat(packageManager, filePath, minimalFlags)
+        val minimal = getPackageArchiveInfoCompat(packageManager, filePath, minimalFlags)
+        if (minimal != null) return minimal
+
+        Logger.w {
+            "Minimal-flag parse also failed for $filePath, retrying with zero flags"
+        }
+
+        return getPackageArchiveInfoCompat(packageManager, filePath, 0)
     }
 
     private fun getPackageArchiveInfoCompat(
@@ -116,13 +123,15 @@ class AndroidInstallerInfoExtractor(
             // the full-flag parse succeeded).
             val sigInfo = packageInfo.signingInfo
             if (sigInfo != null) {
-                val certs =
+                val cert =
                     if (sigInfo.hasMultipleSigners()) {
-                        sigInfo.apkContentsSigners
+                        sigInfo.apkContentsSigners?.firstOrNull()
                     } else {
-                        sigInfo.signingCertificateHistory
+                        // History is oldest→newest; last entry is the
+                        // current signer after key rotation.
+                        sigInfo.signingCertificateHistory?.lastOrNull()
                     }
-                certs?.firstOrNull()?.toByteArray()?.let { certBytes ->
+                cert?.toByteArray()?.let { certBytes ->
                     return sha256Fingerprint(certBytes)
                 }
             }

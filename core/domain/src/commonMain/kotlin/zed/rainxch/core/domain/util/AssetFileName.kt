@@ -106,8 +106,9 @@ object AssetFileName {
         owner: String,
         repo: String,
     ): Boolean {
-        val expectedPrefix = "${sanitizeComponent(owner).take(MAX_COMPONENT_LEN)}_" +
-            "${sanitizeComponent(repo).take(MAX_COMPONENT_LEN)}_"
+        val ownerPart = sanitizeComponent(owner).take(MAX_COMPONENT_LEN).ifBlank { "unknown" }
+        val repoPart = sanitizeComponent(repo).take(MAX_COMPONENT_LEN).ifBlank { "unknown" }
+        val expectedPrefix = MULTI_UNDERSCORE.replace("${ownerPart}_${repoPart}_", "_")
         return fileName.lowercase().startsWith(expectedPrefix)
     }
 

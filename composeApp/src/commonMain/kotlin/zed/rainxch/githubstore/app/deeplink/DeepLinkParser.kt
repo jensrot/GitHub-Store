@@ -63,7 +63,7 @@ object DeepLinkParser {
             // segments — the deferred install is keyed by package name
             // on the row itself, so the link only needs to bring the
             // user to the right tab.
-            uri == "githubstore://apps" || uri.startsWith("githubstore://apps?") -> {
+            uri == "githubstore://apps" || uri == "githubstore://apps/" || uri.startsWith("githubstore://apps?") -> {
                 DeepLinkDestination.Apps
             }
 

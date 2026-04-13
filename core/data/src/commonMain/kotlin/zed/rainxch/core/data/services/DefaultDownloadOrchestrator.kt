@@ -450,6 +450,24 @@ class DefaultDownloadOrchestrator(
             } catch (e: Exception) {
                 Logger.w(e) { "Orchestrator: cancelDownload failed for $scopedName" }
             }
+
+            // If the entry was parked (AwaitingInstall), clean up the
+            // persistent pending-install metadata and notification so
+            // the apps row doesn't keep showing "ready to install".
+            if (entry.stage == DownloadStage.AwaitingInstall) {
+                try {
+                    installedAppsRepository.setPendingInstallFilePath(packageName, null)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Logger.w(e) { "Orchestrator: failed to clear pending path on cancel" }
+                }
+                try {
+                    pendingInstallNotifier.clearPending(packageName)
+                } catch (e: Exception) {
+                    Logger.w(e) { "Orchestrator: failed to clear notification on cancel" }
+                }
+            }
         }
 
         stateMutex.withLock {
@@ -490,15 +508,20 @@ class DefaultDownloadOrchestrator(
         return try {
             installer.ensurePermissionsOrThrow(ext)
             val outcome = installer.install(filePath, ext)
-            try {
-                installedAppsRepository.setPendingInstallFilePath(packageName, null)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Logger.w(e) { "Orchestrator: failed to clear pending install path post-install" }
+            if (outcome == InstallOutcome.COMPLETED) {
+                try {
+                    installedAppsRepository.setPendingInstallFilePath(packageName, null)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Logger.w(e) { "Orchestrator: failed to clear pending install path post-install" }
+                }
+                pendingInstallNotifier.clearPending(packageName)
+                updateEntry(packageName) { it.copy(stage = DownloadStage.Completed) }
             }
-            pendingInstallNotifier.clearPending(packageName)
-            updateEntry(packageName) { it.copy(stage = DownloadStage.Completed) }
+            // DELEGATED_TO_SYSTEM: the system installer dialog is
+            // showing. Don't clear pending metadata or mark Completed —
+            // PackageEventReceiver handles the final state transition.
             outcome
         } catch (e: CancellationException) {
             throw e

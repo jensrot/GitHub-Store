@@ -9,10 +9,10 @@ package zed.rainxch.core.domain.system
  * a one-tap path back into the app to complete the install.
  *
  * Platform contracts:
- *  - **Android**: real notification with a deep link into the apps
- *    screen. Channel id `pending_installs`. Tapping the notification
- *    or its action button opens the apps tab; the user installs from
- *    the row.
+ *  - **Android**: real notification with a deep link into the Details
+ *    page for the specific app (`githubstore://repo/owner/name`).
+ *    Falls back to the apps tab (`githubstore://apps`) when owner/repo
+ *    are unavailable. Channel id `app_updates`.
  *  - **JVM/Desktop**: no-op (Desktop doesn't background-install APKs;
  *    the apps tab is hidden on Desktop anyway).
  */

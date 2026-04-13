@@ -10,7 +10,9 @@ class AndroidFileLocationsProvider(
     override fun appDownloadsDir(): String {
         val dir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
             ?: File(context.filesDir, "downloads")
-        if (!dir.exists()) dir.mkdirs()
+        if (!dir.exists() && !dir.mkdirs() && !dir.exists()) {
+            throw IllegalStateException("Failed to create downloads directory: ${dir.absolutePath}")
+        }
         return dir.absolutePath
     }
 

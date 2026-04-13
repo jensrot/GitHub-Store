@@ -957,22 +957,31 @@ class AppsViewModel(
                         ),
                     )
 
-                    val filePath =
+                    val orchestratorResult =
                         waitForOrchestratorReady(app.packageName) { progress ->
                             updateAppProgress(app.packageName, progress)
                         }
-                    if (filePath == null) {
-                        // Either the orchestrator already installed
-                        // (Shizuku/AlwaysInstall completed) or the
-                        // download failed/cancelled. Either way, the
-                        // local install path below has nothing to do.
-                        updateAppState(app.packageName, UpdateState.Idle)
-                        return@launch
+                    val filePath = when (orchestratorResult) {
+                        is OrchestratorResult.Ready -> orchestratorResult.filePath
+                        is OrchestratorResult.AlreadyInstalled -> {
+                            updateAppState(app.packageName, UpdateState.Idle)
+                            return@launch
+                        }
+                        is OrchestratorResult.Cancelled -> {
+                            updateAppState(app.packageName, UpdateState.Idle)
+                            return@launch
+                        }
+                        is OrchestratorResult.Failed -> {
+                            updateAppState(
+                                app.packageName,
+                                UpdateState.Error(orchestratorResult.message ?: "Download failed"),
+                            )
+                            return@launch
+                        }
                     }
 
                     val apkInfo =
                         installer.getApkInfoExtractor().extractPackageInfo(filePath)
-                            ?: throw IllegalStateException("Failed to extract APK info")
 
                     val currentApp = installedAppsRepository.getAppByPackage(app.packageName)
                     if (currentApp != null) {
@@ -982,8 +991,8 @@ class AppsViewModel(
                                 latestVersion = latestVersion,
                                 latestAssetName = latestAssetName,
                                 latestAssetUrl = latestAssetUrl,
-                                latestVersionName = apkInfo.versionName,
-                                latestVersionCode = apkInfo.versionCode,
+                                latestVersionName = apkInfo?.versionName ?: latestVersion,
+                                latestVersionCode = apkInfo?.versionCode ?: 0L,
                             ),
                         )
                     } else {
@@ -1257,10 +1266,22 @@ class AppsViewModel(
      * emission whose stage is terminal. Avoids needing to throw out
      * of `collect`.
      */
+    /**
+     * Result type for [waitForOrchestratorReady] so callers can
+     * distinguish "file is ready" from "orchestrator already installed"
+     * from "download failed".
+     */
+    private sealed interface OrchestratorResult {
+        data class Ready(val filePath: String) : OrchestratorResult
+        data object AlreadyInstalled : OrchestratorResult
+        data object Cancelled : OrchestratorResult
+        data class Failed(val message: String?) : OrchestratorResult
+    }
+
     private suspend fun waitForOrchestratorReady(
         packageName: String,
         onProgress: (Int) -> Unit,
-    ): String? {
+    ): OrchestratorResult {
         val terminal =
             downloadOrchestrator
                 .observe(packageName)
@@ -1277,9 +1298,13 @@ class AppsViewModel(
                         entry.stage == OrchestratorStage.Failed
                 }
         return when {
-            terminal == null -> null
-            terminal.stage == OrchestratorStage.AwaitingInstall -> terminal.filePath
-            else -> null
+            terminal == null -> OrchestratorResult.Cancelled
+            terminal.stage == OrchestratorStage.AwaitingInstall ->
+                terminal.filePath?.let { OrchestratorResult.Ready(it) }
+                    ?: OrchestratorResult.Failed("Downloaded file path missing")
+            terminal.stage == OrchestratorStage.Completed -> OrchestratorResult.AlreadyInstalled
+            terminal.stage == OrchestratorStage.Failed -> OrchestratorResult.Failed(terminal.errorMessage)
+            else -> OrchestratorResult.Cancelled
         }
     }
 
