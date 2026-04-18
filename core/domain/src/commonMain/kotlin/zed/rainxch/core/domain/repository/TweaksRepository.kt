@@ -58,4 +58,8 @@ interface TweaksRepository {
     fun getScrollbarEnabled(): Flow<Boolean>
 
     suspend fun setScrollbarEnabled(enabled: Boolean)
+
+    fun getTelemetryEnabled(): Flow<Boolean>
+
+    suspend fun setTelemetryEnabled(enabled: Boolean)
 }

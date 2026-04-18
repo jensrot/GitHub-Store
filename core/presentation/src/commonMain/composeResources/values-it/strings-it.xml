@@ -193,7 +193,7 @@
     <string name="issues">Problemi</string>
     <string name="downloads">Download</string>
     <string name="license">Licenza</string>
-    <string name="license_none">Nessuna</string>
+    <string name="license_none">—</string>
     <string name="fetch_more_from_github">Cerca altri su GitHub</string>
     <string name="fetching_from_github">Ricerca su GitHub…</string>
     <string name="no_more_github_results">Nessun altro risultato su GitHub</string>
@@ -619,6 +619,12 @@
     <string name="clear_seen_history_description">Reimposta tutti i repository visualizzati in modo che ricompaiano nei feed</string>
     <string name="seen_history_cleared">Cronologia visualizzazioni cancellata</string>
     <string name="seen_badge">Visualizzato</string>
+    <string name="privacy_section">Privacy</string>
+    <string name="telemetry_title">Aiuta a migliorare la ricerca</string>
+    <string name="telemetry_description">Condividi dati di utilizzo anonimi (ricerche, installazioni) per migliorare i suggerimenti. Nessuna informazione personale viene raccolta.</string>
+    <string name="reset_analytics_id_title">Reimposta ID analitico</string>
+    <string name="reset_analytics_id_description">Genera un nuovo ID anonimo, interrompendo il collegamento con la telemetria passata.</string>
+    <string name="analytics_id_reset">ID analitico reimpostato</string>
 
     <string name="recently_viewed">Visualizzati di recente</string>
     <string name="profile_recently_viewed_description">Repository che hai visitato</string>

@@ -26,6 +26,7 @@ import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.SearchHistoryRepository
 import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.StarredRepository
+import zed.rainxch.core.domain.repository.TelemetryRepository
 import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import zed.rainxch.core.domain.utils.ClipboardHelper
@@ -57,6 +58,7 @@ class SearchViewModel(
     private val tweaksRepository: TweaksRepository,
     private val seenReposRepository: SeenReposRepository,
     private val searchHistoryRepository: SearchHistoryRepository,
+    private val telemetryRepository: TelemetryRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var currentSearchJob: Job? = null
@@ -401,6 +403,13 @@ class SearchViewModel(
                     _state.update {
                         it.copy(isLoading = false, isLoadingMore = false)
                     }
+
+                    if (isInitial) {
+                        telemetryRepository.recordSearchPerformed(
+                            query = query,
+                            resultCount = _state.value.repositories.size,
+                        )
+                    }
                 } catch (e: RateLimitException) {
                     logger.debug("Rate limit exceeded: ${e.message}")
                     _state.update {
@@ -628,7 +637,8 @@ class SearchViewModel(
             }
 
             is SearchAction.OnRepositoryClick -> {
-                // Handled in composable
+                telemetryRepository.recordSearchResultClicked(action.repository.id)
+                // Navigation handled in composable
             }
 
             SearchAction.OnNavigateBackClick -> {

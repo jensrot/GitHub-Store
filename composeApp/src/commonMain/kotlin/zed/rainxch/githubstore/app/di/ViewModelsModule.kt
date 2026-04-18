@@ -1,5 +1,6 @@
 package zed.rainxch.githubstore.app.di
 
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import zed.rainxch.apps.presentation.AppsViewModel
@@ -18,7 +19,37 @@ val viewModelsModule =
     module {
         viewModelOf(::AppsViewModel)
         viewModelOf(::AuthenticationViewModel)
-        viewModelOf(::DetailsViewModel)
+        viewModel { params ->
+            // Indexed access because `ownerParam` and `repoParam` are both
+            // Strings — positional `params.get()` would silently pick the
+            // first matching by type and could swap the two if Koin ever
+            // changes its resolution order.
+            DetailsViewModel(
+                repositoryId = params.get(0),
+                ownerParam = params.get(1),
+                repoParam = params.get(2),
+                isComingFromUpdate = params.get(3),
+                detailsRepository = get(),
+                downloader = get(),
+                installer = get(),
+                platform = get(),
+                helper = get(),
+                shareManager = get(),
+                installedAppsRepository = get(),
+                favouritesRepository = get(),
+                starredRepository = get(),
+                packageMonitor = get(),
+                syncInstalledAppsUseCase = get(),
+                translationRepository = get(),
+                logger = get(),
+                tweaksRepository = get(),
+                seenReposRepository = get(),
+                installationManager = get(),
+                attestationVerifier = get(),
+                downloadOrchestrator = get(),
+                telemetryRepository = get(),
+            )
+        }
         viewModelOf(::DeveloperProfileViewModel)
         viewModelOf(::FavouritesViewModel)
         viewModelOf(::HomeViewModel)

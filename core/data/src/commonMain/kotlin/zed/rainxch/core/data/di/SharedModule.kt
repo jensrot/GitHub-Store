@@ -30,8 +30,10 @@ import zed.rainxch.core.data.repository.AuthenticationStateImpl
 import zed.rainxch.core.data.repository.FavouritesRepositoryImpl
 import zed.rainxch.core.data.repository.InstalledAppsRepositoryImpl
 import zed.rainxch.core.data.repository.ProxyRepositoryImpl
+import zed.rainxch.core.data.repository.DeviceIdentityRepositoryImpl
 import zed.rainxch.core.data.repository.RateLimitRepositoryImpl
 import zed.rainxch.core.data.repository.SearchHistoryRepositoryImpl
+import zed.rainxch.core.data.repository.TelemetryRepositoryImpl
 import zed.rainxch.core.data.repository.SeenReposRepositoryImpl
 import zed.rainxch.core.data.repository.StarredRepositoryImpl
 import zed.rainxch.core.data.repository.TweaksRepositoryImpl
@@ -42,6 +44,7 @@ import zed.rainxch.core.domain.model.ProxyConfig
 import zed.rainxch.core.domain.network.ProxyTester
 import zed.rainxch.core.domain.system.DownloadOrchestrator
 import zed.rainxch.core.domain.repository.AuthenticationState
+import zed.rainxch.core.domain.repository.DeviceIdentityRepository
 import zed.rainxch.core.domain.repository.FavouritesRepository
 import zed.rainxch.core.domain.repository.InstalledAppsRepository
 import zed.rainxch.core.domain.repository.ProxyRepository
@@ -49,6 +52,7 @@ import zed.rainxch.core.domain.repository.RateLimitRepository
 import zed.rainxch.core.domain.repository.SearchHistoryRepository
 import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.StarredRepository
+import zed.rainxch.core.domain.repository.TelemetryRepository
 import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 
@@ -141,6 +145,23 @@ val coreModule =
 
         single<BackendApiClient> {
             BackendApiClient()
+        }
+
+        single<DeviceIdentityRepository> {
+            DeviceIdentityRepositoryImpl(
+                preferences = get(),
+            )
+        }
+
+        single<TelemetryRepository> {
+            TelemetryRepositoryImpl(
+                backendApiClient = get(),
+                deviceIdentity = get(),
+                tweaksRepository = get(),
+                platform = get(),
+                appScope = get(),
+                logger = get(),
+            )
         }
 
         // Application-scoped download / install orchestrator. Lives

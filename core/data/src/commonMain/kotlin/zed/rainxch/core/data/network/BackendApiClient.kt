@@ -11,9 +11,15 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import io.ktor.client.plugins.timeout
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import zed.rainxch.core.data.dto.BackendExploreResponse
 import zed.rainxch.core.data.dto.BackendRepoResponse
 import zed.rainxch.core.data.dto.BackendSearchResponse
+import zed.rainxch.core.data.dto.EventRequest
 import kotlin.coroutines.cancellation.CancellationException
 
 class BackendApiClient {
@@ -104,6 +110,22 @@ class BackendApiClient {
             }
         }
 
+    suspend fun postEvents(events: List<EventRequest>): Result<Unit> =
+        safeCall {
+            val response = httpClient.post("events") {
+                contentType(ContentType.Application.Json)
+                setBody(events)
+            }
+            when {
+                response.status == HttpStatusCode.NoContent || response.status.isSuccess() ->
+                    Result.success(Unit)
+                response.status == HttpStatusCode.TooManyRequests ->
+                    Result.failure(RateLimitedException())
+                else ->
+                    Result.failure(BackendException("HTTP ${response.status.value}"))
+            }
+        }
+
     private inline fun <T> safeCall(block: () -> Result<T>): Result<T> =
         try {
             block()
@@ -119,3 +141,5 @@ class BackendApiClient {
 }
 
 class BackendException(message: String) : Exception(message)
+
+class RateLimitedException : Exception("Rate limited by backend (429)")

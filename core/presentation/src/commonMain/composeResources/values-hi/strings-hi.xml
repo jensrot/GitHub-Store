@@ -193,7 +193,7 @@
     <string name="issues">इश्यूज़</string>
     <string name="downloads">डाउनलोड</string>
     <string name="license">लाइसेंस</string>
-    <string name="license_none">कोई नहीं</string>
+    <string name="license_none">—</string>
     <string name="fetch_more_from_github">GitHub से और लाएं</string>
     <string name="fetching_from_github">GitHub से ला रहे हैं…</string>
     <string name="no_more_github_results">GitHub पर और परिणाम नहीं हैं</string>
@@ -618,6 +618,12 @@
     <string name="clear_seen_history_description">सभी देखे गए रिपॉजिटरी रीसेट करें ताकि वे फ़ीड में फिर से दिखें</string>
     <string name="seen_history_cleared">देखने का इतिहास साफ़ किया गया</string>
     <string name="seen_badge">देखा गया</string>
+    <string name="privacy_section">गोपनीयता</string>
+    <string name="telemetry_title">खोज को बेहतर बनाने में मदद करें</string>
+    <string name="telemetry_description">सुझाव बेहतर बनाने के लिए अनाम उपयोग डेटा (खोज, इंस्टॉल) साझा करें। कोई व्यक्तिगत जानकारी नहीं एकत्र की जाती।</string>
+    <string name="reset_analytics_id_title">एनालिटिक्स आईडी रीसेट करें</string>
+    <string name="reset_analytics_id_description">एक नया अनाम आईडी बनाएं, पिछले टेलीमेट्री से लिंक को तोड़ें।</string>
+    <string name="analytics_id_reset">एनालिटिक्स आईडी रीसेट किया गया</string>
 
     <string name="recently_viewed">हाल ही में देखा गया</string>
     <string name="profile_recently_viewed_description">वे रिपॉजिटरी जिन्हें आपने देखा है</string>
