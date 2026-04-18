@@ -589,7 +589,7 @@
     <string name="seen_badge">Visto</string>
     <string name="privacy_section">Privacidad</string>
     <string name="telemetry_title">Ayudar a mejorar la búsqueda</string>
-    <string name="telemetry_description">Compartir datos de uso anonimizados (búsquedas, instalaciones, interacciones) vinculados a un ID de análisis restablecible. No se comparten detalles de la cuenta.</string>
+    <string name="telemetry_description">Compartir datos de uso (búsquedas, instalaciones, interacciones) asociados a un ID de análisis restablecible. No se comparten detalles de la cuenta.</string>
     <string name="reset_analytics_id_title">Restablecer ID de análisis</string>
     <string name="reset_analytics_id_description">Generar un nuevo ID anónimo, cortando el vínculo con la telemetría anterior.</string>
     <string name="analytics_id_reset">ID de análisis restablecido</string>

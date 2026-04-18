@@ -3,6 +3,9 @@ package zed.rainxch.core.data.di
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -23,6 +26,7 @@ import zed.rainxch.core.data.logging.KermitLogger
 import zed.rainxch.core.data.network.BackendApiClient
 import zed.rainxch.core.data.network.GitHubClientProvider
 import zed.rainxch.core.data.network.ProxyManager
+import zed.rainxch.core.data.network.ProxyManagerSeeding
 import zed.rainxch.core.data.network.ProxyTesterImpl
 import zed.rainxch.core.data.network.TranslationClientProvider
 import zed.rainxch.core.data.repository.AuthenticationStateImpl
@@ -123,6 +127,7 @@ val coreModule =
         single<ProxyRepository> {
             ProxyRepositoryImpl(
                 preferences = get(),
+                logger = get(),
             )
         }
 
@@ -144,10 +149,24 @@ val coreModule =
         }
 
         single<BackendApiClient> {
+            // Request the seeding sentinel so Koin guarantees ProxyManager
+            // has the user's persisted config loaded before we snapshot
+            // the discovery flow for the initial client build.
+            get<ProxyManagerSeeding>()
             BackendApiClient(
                 proxyConfigFlow = ProxyManager.configFlow(ProxyScope.DISCOVERY),
             )
         }
+        // NOTE: the reviewer asked for a Koin onClose hook to call
+        // BackendApiClient.close()/GitHubClientProvider.close()/
+        // TranslationClientProvider.close() at Koin shutdown. Koin 4.x
+        // (4.1.1 on this project) doesn't expose that hook at the
+        // module DSL level — it existed in 3.x and was removed — and
+        // there's no clean replacement short of wrapping each provider
+        // in a Koin scope. On Android/Desktop the process exit
+        // releases these resources anyway, so we intentionally leave
+        // the hooks off rather than fake them with an API that doesn't
+        // fit. Revisit if we upgrade Koin or adopt scope-based DI.
 
         single<DeviceIdentityRepository> {
             DeviceIdentityRepositoryImpl(
@@ -182,26 +201,41 @@ val coreModule =
 
 val networkModule =
     module {
-        // Seed ProxyManager from persisted per-scope configs *before* any
-        // HTTP client is constructed. Blocks briefly (≤1.5s per scope) on
-        // DataStore reads so the very first request uses the user's saved
-        // proxy rather than the System default. Failures are swallowed and
-        // fall back to System — we'd rather network work than the app stall
-        // on startup if DataStore is slow.
-        single<GitHubClientProvider>(createdAtStart = true) {
+        // Seed [ProxyManager] from persisted per-scope configs *before*
+        // any HTTP client is constructed. Registered as its own
+        // [ProxyManagerSeeding] sentinel so client providers can depend
+        // on it explicitly — without this the seeding would live inside
+        // one provider's factory and silently race with others.
+        //
+        // Reads run in parallel under a single 1.5s budget (was 1.5s × 3
+        // sequential). On timeout / DataStore failure we fall back to the
+        // in-memory defaults — we'd rather the app network with the
+        // System proxy than stall at launch on a slow disk.
+        single<ProxyManagerSeeding>(createdAtStart = true) {
             val repository = get<ProxyRepository>()
-            ProxyScope.entries.forEach { scope ->
-                val saved =
-                    runBlocking {
-                        runCatching {
-                            withTimeout(1_500L) {
-                                repository.getProxyConfig(scope).first()
-                            }
-                        }.getOrDefault(ProxyConfig.System)
+            runBlocking {
+                runCatching {
+                    withTimeout(1_500L) {
+                        coroutineScope {
+                            ProxyScope.entries
+                                .map { scope ->
+                                    async {
+                                        scope to repository.getProxyConfig(scope).first()
+                                    }
+                                }.awaitAll()
+                        }
                     }
-                ProxyManager.setConfig(scope, saved)
+                }.onSuccess { results ->
+                    results.forEach { (scope, config) ->
+                        ProxyManager.setConfig(scope, config)
+                    }
+                }
             }
+            ProxyManagerSeeding()
+        }
 
+        single<GitHubClientProvider>(createdAtStart = true) {
+            get<ProxyManagerSeeding>()
             GitHubClientProvider(
                 tokenStore = get(),
                 rateLimitRepository = get(),
@@ -211,6 +245,7 @@ val networkModule =
         }
 
         single<TranslationClientProvider>(createdAtStart = true) {
+            get<ProxyManagerSeeding>()
             TranslationClientProvider(
                 proxyConfigFlow = ProxyManager.configFlow(ProxyScope.TRANSLATION),
             )

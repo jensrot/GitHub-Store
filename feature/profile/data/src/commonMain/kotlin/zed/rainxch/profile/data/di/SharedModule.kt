@@ -4,7 +4,7 @@ import org.koin.dsl.module
 import zed.rainxch.profile.data.repository.ProfileRepositoryImpl
 import zed.rainxch.profile.domain.repository.ProfileRepository
 
-val settingsModule =
+val profileModule =
     module {
         single<ProfileRepository> {
             ProfileRepositoryImpl(

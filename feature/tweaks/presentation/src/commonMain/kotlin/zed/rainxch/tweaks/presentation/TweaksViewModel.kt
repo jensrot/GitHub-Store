@@ -427,33 +427,50 @@ class TweaksViewModel(
 
             is TweaksAction.OnProxySave -> {
                 val form = _state.value.formFor(action.scope)
-                val port =
-                    form.port
-                        .toIntOrNull()
-                        ?.takeIf { it in 1..65535 }
-                        ?: run {
-                            viewModelScope.launch {
-                                _events.send(TweaksEvent.OnProxySaveError(getString(Res.string.invalid_proxy_port)))
-                            }
-                            return
-                        }
-                val host =
-                    form.host.trim().takeIf { it.isNotBlank() } ?: run {
-                        viewModelScope.launch {
-                            _events.send(TweaksEvent.OnProxySaveError(getString(Res.string.proxy_host_required)))
-                        }
-                        return
-                    }
-
-                val username = form.username.takeIf { it.isNotBlank() }
-                val password = form.password.takeIf { it.isNotBlank() }
-
-                val config =
+                // Only HTTP/SOCKS need host+port — validate for those
+                // only. NONE/SYSTEM carry no form fields and would
+                // otherwise be rejected with "host required" for no
+                // reason if something ever triggered Save for them
+                // (today the UI doesn't, but defense in depth).
+                val config: ProxyConfig =
                     when (form.type) {
-                        ProxyType.HTTP -> ProxyConfig.Http(host, port, username, password)
-                        ProxyType.SOCKS -> ProxyConfig.Socks(host, port, username, password)
                         ProxyType.NONE -> ProxyConfig.None
                         ProxyType.SYSTEM -> ProxyConfig.System
+                        ProxyType.HTTP, ProxyType.SOCKS -> {
+                            val port =
+                                form.port
+                                    .toIntOrNull()
+                                    ?.takeIf { it in 1..65535 }
+                                    ?: run {
+                                        viewModelScope.launch {
+                                            _events.send(
+                                                TweaksEvent.OnProxySaveError(
+                                                    getString(Res.string.invalid_proxy_port),
+                                                ),
+                                            )
+                                        }
+                                        return
+                                    }
+                            val host =
+                                form.host.trim().takeIf { it.isNotBlank() }
+                                    ?: run {
+                                        viewModelScope.launch {
+                                            _events.send(
+                                                TweaksEvent.OnProxySaveError(
+                                                    getString(Res.string.proxy_host_required),
+                                                ),
+                                            )
+                                        }
+                                        return
+                                    }
+                            val username = form.username.takeIf { it.isNotBlank() }
+                            val password = form.password.takeIf { it.isNotBlank() }
+                            if (form.type == ProxyType.HTTP) {
+                                ProxyConfig.Http(host, port, username, password)
+                            } else {
+                                ProxyConfig.Socks(host, port, username, password)
+                            }
+                        }
                     }
 
                 viewModelScope.launch {

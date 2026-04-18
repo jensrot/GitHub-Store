@@ -592,7 +592,7 @@
     <string name="seen_badge">Przeglądane</string>
     <string name="privacy_section">Prywatność</string>
     <string name="telemetry_title">Pomóż ulepszyć wyszukiwanie</string>
-    <string name="telemetry_description">Udostępniaj zanonimizowane dane o użyciu (wyszukiwania, instalacje, interakcje) powiązane z resetowalnym identyfikatorem analitycznym. Żadne dane konta nie są udostępniane.</string>
+    <string name="telemetry_description">Udostępniaj dane o użyciu (wyszukiwania, instalacje, interakcje) powiązane z resetowalnym identyfikatorem analitycznym. Żadne dane konta nie są udostępniane.</string>
     <string name="reset_analytics_id_title">Zresetuj ID analityki</string>
     <string name="reset_analytics_id_description">Wygeneruj nowy anonimowy ID, zrywając powiązanie z poprzednią telemetrią.</string>
     <string name="analytics_id_reset">ID analityki zresetowany</string>

@@ -626,7 +626,7 @@
     <string name="seen_badge">Görüntülendi</string>
     <string name="privacy_section">Gizlilik</string>
     <string name="telemetry_title">Aramayı iyileştirmeye yardım et</string>
-    <string name="telemetry_description">Sıfırlanabilir bir analiz kimliğine bağlı anonimleştirilmiş kullanım verilerini (aramalar, yüklemeler, etkileşimler) paylaş. Hesap ayrıntıları paylaşılmaz.</string>
+    <string name="telemetry_description">Sıfırlanabilir bir analiz kimliğiyle ilişkilendirilmiş kullanım verilerini (aramalar, yüklemeler, etkileşimler) paylaş. Hesap ayrıntıları paylaşılmaz.</string>
     <string name="reset_analytics_id_title">Analitik kimliğini sıfırla</string>
     <string name="reset_analytics_id_description">Yeni anonim kimlik oluştur, geçmiş telemetri ile bağı kopar.</string>
     <string name="analytics_id_reset">Analitik kimliği sıfırlandı</string>

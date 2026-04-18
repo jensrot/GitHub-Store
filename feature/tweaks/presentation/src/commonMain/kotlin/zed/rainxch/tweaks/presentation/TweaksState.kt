@@ -33,7 +33,11 @@ data class TweaksState(
     val youdaoAppSecret: String = "",
     val isYoudaoAppSecretVisible: Boolean = false,
 ) {
-    /** Convenience accessor — guaranteed non-null because the map is
-     *  seeded with entries for every [ProxyScope] at construction time. */
-    fun formFor(scope: ProxyScope): ProxyScopeFormState = proxyForms.getValue(scope)
+    /** Convenience accessor — returns a fresh default if the map is
+     *  missing an entry for [scope]. The constructor seeds all scopes,
+     *  but `copy(proxyForms = …)` call sites could in theory produce an
+     *  incomplete map; the safe default keeps the UI from crashing in
+     *  that case. */
+    fun formFor(scope: ProxyScope): ProxyScopeFormState =
+        proxyForms[scope] ?: ProxyScopeFormState()
 }

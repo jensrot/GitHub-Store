@@ -49,18 +49,29 @@ actual fun createPlatformHttpClient(proxyConfig: ProxyConfig): HttpClient =
                         proxy(Proxy(Proxy.Type.SOCKS, InetSocketAddress(proxyConfig.host, proxyConfig.port)))
                         val username = proxyConfig.username
                         val password = proxyConfig.password
+                        val proxyHost = proxyConfig.host
+                        val proxyPort = proxyConfig.port
                         if (!username.isNullOrEmpty() && !password.isNullOrEmpty()) {
                             // SOCKS5 username/password auth goes through
                             // java.net.Authenticator (OkHttp has no
-                            // dedicated SOCKS auth hook), so install a
-                            // default authenticator keyed on host:port.
+                            // dedicated SOCKS auth hook). Scope the
+                            // credentials to the configured proxy host
+                            // and port — `Authenticator.setDefault` is
+                            // process-wide, so an unconditional responder
+                            // would leak these creds to any other auth
+                            // challenge the JVM sees.
                             Authenticator.setDefault(
                                 object : Authenticator() {
-                                    override fun getPasswordAuthentication() =
-                                        PasswordAuthentication(
-                                            username,
-                                            password.toCharArray(),
-                                        )
+                                    override fun getPasswordAuthentication(): PasswordAuthentication? {
+                                        val hostMatches =
+                                            requestingHost.equals(proxyHost, ignoreCase = true)
+                                        val portMatches = requestingPort == proxyPort
+                                        return if (hostMatches && portMatches) {
+                                            PasswordAuthentication(username, password.toCharArray())
+                                        } else {
+                                            null
+                                        }
+                                    }
                                 },
                             )
                         }

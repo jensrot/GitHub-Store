@@ -628,7 +628,7 @@
     <string name="seen_badge">Visualizzato</string>
     <string name="privacy_section">Privacy</string>
     <string name="telemetry_title">Aiuta a migliorare la ricerca</string>
-    <string name="telemetry_description">Condividi dati di utilizzo anonimizzati (ricerche, installazioni, interazioni) collegati a un ID analitico ripristinabile. Nessun dettaglio dell'account viene condiviso.</string>
+    <string name="telemetry_description">Condividi dati di utilizzo (ricerche, installazioni, interazioni) associati a un ID analitico ripristinabile. Nessun dettaglio dell\'account viene condiviso.</string>
     <string name="reset_analytics_id_title">Reimposta ID analitico</string>
     <string name="reset_analytics_id_description">Genera un nuovo ID anonimo, interrompendo il collegamento con la telemetria passata.</string>
     <string name="analytics_id_reset">ID analitico reimpostato</string>

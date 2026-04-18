@@ -38,8 +38,13 @@ class TranslationClientProvider(
             .distinctUntilChanged()
             .onEach { config ->
                 mutex.withLock {
-                    currentClient.close()
-                    currentClient = createPlatformHttpClient(config)
+                    // Build the replacement *before* closing the old one
+                    // so the volatile read from [client] never observes a
+                    // closed-but-not-yet-reassigned client.
+                    val replacement = createPlatformHttpClient(config)
+                    val previous = currentClient
+                    currentClient = replacement
+                    previous.close()
                 }
             }.launchIn(scope)
     }

@@ -629,7 +629,7 @@
     <string name="seen_badge">تمت المشاهدة</string>
     <string name="privacy_section">الخصوصية</string>
     <string name="telemetry_title">ساعد في تحسين البحث</string>
-    <string name="telemetry_description">مشاركة بيانات الاستخدام المجهولة الهوية (عمليات البحث والتثبيتات والتفاعلات) المرتبطة بمعرّف تحليلي قابل لإعادة التعيين. لا تتم مشاركة تفاصيل الحساب.</string>
+    <string name="telemetry_description">مشاركة بيانات الاستخدام (عمليات البحث والتثبيتات والتفاعلات) المرتبطة بمعرّف تحليلي قابل لإعادة التعيين. لا تتم مشاركة تفاصيل الحساب.</string>
     <string name="reset_analytics_id_title">إعادة تعيين معرف التحليلات</string>
     <string name="reset_analytics_id_description">إنشاء معرف مجهول جديد، مما يقطع الصلة بالبيانات السابقة.</string>
     <string name="analytics_id_reset">تم إعادة تعيين معرف التحليلات</string>
