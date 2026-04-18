@@ -324,14 +324,26 @@ class DetailsRepositoryImpl(
             return cached
         }
 
-        // Try backend first — avoids GitHub API for Chinese users
+        // Try backend first — provides stars/forks/downloadCount.
+        // Backend doesn't have openIssues/license, so supplement with a
+        // best-effort GitHub call for those fields. If GitHub is blocked
+        // (e.g. for users in China), we still show the backend data.
         backendApiClient.getRepo(owner, repo).getOrNull()?.let { backendRepo ->
             logger.debug("Backend hit for repo stats $owner/$repo")
+
+            val githubInfo = runCatching {
+                httpClient.executeRequest<RepoInfoNetwork> {
+                    get("/repos/$owner/$repo") {
+                        header(HttpHeaders.Accept, "application/vnd.github+json")
+                    }
+                }.getOrNull()
+            }.getOrNull()
+
             val result = RepoStats(
                 stars = backendRepo.stargazersCount,
                 forks = backendRepo.forksCount,
-                openIssues = 0,
-                license = null,
+                openIssues = githubInfo?.openIssues ?: 0,
+                license = githubInfo?.license?.spdxId ?: githubInfo?.license?.name,
                 totalDownloads = backendRepo.downloadCount,
             )
             cacheManager.put(cacheKey, result, REPO_STATS)

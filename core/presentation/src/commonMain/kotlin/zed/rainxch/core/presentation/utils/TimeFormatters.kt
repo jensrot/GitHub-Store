@@ -13,13 +13,31 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 @OptIn(ExperimentalTime::class)
-fun hasWeekNotPassed(isoInstant: String): Boolean {
-    val updated =
-        try {
-            Instant.parse(isoInstant)
-        } catch (_: IllegalArgumentException) {
-            return false
+private fun parseIsoInstantLenient(isoInstant: String): Instant? {
+    if (isoInstant.isBlank()) return null
+    runCatching { return Instant.parse(isoInstant) }
+
+    // Backend occasionally returns timestamps without seconds (e.g. "2024-10-16T17:00Z").
+    // Retry after inserting ":00" before the timezone designator.
+    val normalized = runCatching {
+        val tzStart = isoInstant.indexOfAny(charArrayOf('Z', '+', '-'), startIndex = 11)
+        if (tzStart < 0) return@runCatching null
+        val head = isoInstant.substring(0, tzStart)
+        val tail = isoInstant.substring(tzStart)
+        val colonCount = head.count { it == ':' }
+        when (colonCount) {
+            1 -> head + ":00" + tail
+            0 -> head + ":00:00" + tail
+            else -> null
         }
+    }.getOrNull() ?: return null
+
+    return runCatching { Instant.parse(normalized) }.getOrNull()
+}
+
+@OptIn(ExperimentalTime::class)
+fun hasWeekNotPassed(isoInstant: String): Boolean {
+    val updated = parseIsoInstantLenient(isoInstant) ?: return false
     val now = Clock.System.now()
     val diff = now - updated
 
@@ -29,7 +47,8 @@ fun hasWeekNotPassed(isoInstant: String): Boolean {
 @OptIn(ExperimentalTime::class)
 @Composable
 fun formatReleasedAt(isoInstant: String): String {
-    val updated = Instant.parse(isoInstant)
+    val updated = parseIsoInstantLenient(isoInstant)
+        ?: return isoInstant.substringBefore('T').ifBlank { "" }
     val now = Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds())
     val diff: Duration = now - updated
 

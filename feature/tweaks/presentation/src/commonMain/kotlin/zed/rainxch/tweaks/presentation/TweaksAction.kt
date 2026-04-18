@@ -95,4 +95,10 @@ sealed interface TweaksAction {
     data object OnClearDownloadsDismiss : TweaksAction
 
     data object OnHelpClick : TweaksAction
+
+    data class OnTelemetryToggled(
+        val enabled: Boolean,
+    ) : TweaksAction
+
+    data object OnResetAnalyticsId : TweaksAction
 }

@@ -22,4 +22,6 @@ sealed interface TweaksEvent {
     ) : TweaksEvent
 
     data object OnSeenHistoryCleared : TweaksEvent
+
+    data object OnAnalyticsIdReset : TweaksEvent
 }

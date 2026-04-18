@@ -162,7 +162,7 @@
     <string name="issues">Zgłoszenia</string>
     <string name="downloads">Pobrania</string>
     <string name="license">Licencja</string>
-    <string name="license_none">Brak</string>
+    <string name="license_none">—</string>
     <string name="fetch_more_from_github">Pobierz więcej z GitHub</string>
     <string name="fetching_from_github">Pobieranie z GitHub…</string>
     <string name="no_more_github_results">Brak więcej wyników na GitHub</string>
@@ -583,6 +583,12 @@
     <string name="clear_seen_history_description">Zresetuj wszystkie przeglądane repozytoria, aby ponownie pojawiły się w kanałach</string>
     <string name="seen_history_cleared">Historia przeglądania wyczyszczona</string>
     <string name="seen_badge">Przeglądane</string>
+    <string name="privacy_section">Prywatność</string>
+    <string name="telemetry_title">Pomóż ulepszyć wyszukiwanie</string>
+    <string name="telemetry_description">Udostępniaj anonimowe dane o użyciu (wyszukiwania, instalacje), aby poprawić rekomendacje. Żadne dane osobowe nie są zbierane.</string>
+    <string name="reset_analytics_id_title">Zresetuj ID analityki</string>
+    <string name="reset_analytics_id_description">Wygeneruj nowy anonimowy ID, zrywając powiązanie z poprzednią telemetrią.</string>
+    <string name="analytics_id_reset">ID analityki zresetowany</string>
 
     <string name="recently_viewed">Ostatnio oglądane</string>
     <string name="profile_recently_viewed_description">Repozytoria, które odwiedziłeś</string>

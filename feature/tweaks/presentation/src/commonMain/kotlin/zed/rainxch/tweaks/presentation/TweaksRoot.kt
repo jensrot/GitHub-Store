@@ -37,6 +37,7 @@ import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.downloads_cleared
 import zed.rainxch.githubstore.core.presentation.res.proxy_saved
 import zed.rainxch.githubstore.core.presentation.res.proxy_test_success
+import zed.rainxch.githubstore.core.presentation.res.analytics_id_reset
 import zed.rainxch.githubstore.core.presentation.res.seen_history_cleared
 import zed.rainxch.githubstore.core.presentation.res.tweaks_title
 import zed.rainxch.tweaks.presentation.components.ClearDownloadsDialog
@@ -107,6 +108,12 @@ fun TweaksRoot(viewModel: TweaksViewModel = koinViewModel()) {
             TweaksEvent.OnSeenHistoryCleared -> {
                 coroutineScope.launch {
                     snackbarState.showSnackbar(getString(Res.string.seen_history_cleared))
+                }
+            }
+
+            TweaksEvent.OnAnalyticsIdReset -> {
+                coroutineScope.launch {
+                    snackbarState.showSnackbar(getString(Res.string.analytics_id_reset))
                 }
             }
         }

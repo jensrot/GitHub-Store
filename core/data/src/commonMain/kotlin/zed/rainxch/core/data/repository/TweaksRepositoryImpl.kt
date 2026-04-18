@@ -168,6 +168,17 @@ class TweaksRepositoryImpl(
         }
     }
 
+    override fun getTelemetryEnabled(): Flow<Boolean> =
+        preferences.data.map { prefs ->
+            prefs[TELEMETRY_ENABLED_KEY] ?: false
+        }
+
+    override suspend fun setTelemetryEnabled(enabled: Boolean) {
+        preferences.edit { prefs ->
+            prefs[TELEMETRY_ENABLED_KEY] = enabled
+        }
+    }
+
     companion object {
         private const val DEFAULT_UPDATE_CHECK_INTERVAL_HOURS = 6L
 
@@ -184,5 +195,6 @@ class TweaksRepositoryImpl(
         private val LIQUID_GLASS_ENABLED_KEY = booleanPreferencesKey("liquid_glass_enabled")
         private val HIDE_SEEN_ENABLED_KEY = booleanPreferencesKey("hide_seen_enabled")
         private val SCROLLBAR_ENABLED_KEY = booleanPreferencesKey("scrollbar_enabled")
+        private val TELEMETRY_ENABLED_KEY = booleanPreferencesKey("telemetry_enabled")
     }
 }

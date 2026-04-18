@@ -30,4 +30,5 @@ data class TweaksState(
     val isLiquidGlassEnabled: Boolean = true,
     val isHideSeenEnabled: Boolean = false,
     val isScrollbarEnabled: Boolean = false,
+    val isTelemetryEnabled: Boolean = false,
 )

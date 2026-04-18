@@ -16,6 +16,7 @@ import org.jetbrains.compose.resources.getString
 import zed.rainxch.core.domain.model.ProxyConfig
 import zed.rainxch.core.domain.network.ProxyTestOutcome
 import zed.rainxch.core.domain.network.ProxyTester
+import zed.rainxch.core.domain.repository.DeviceIdentityRepository
 import zed.rainxch.core.domain.repository.ProxyRepository
 import zed.rainxch.core.domain.repository.SeenReposRepository
 import zed.rainxch.core.domain.repository.TweaksRepository
@@ -44,6 +45,7 @@ class TweaksViewModel(
     private val proxyTester: ProxyTester,
     private val updateScheduleManager: UpdateScheduleManager,
     private val seenReposRepository: SeenReposRepository,
+    private val deviceIdentityRepository: DeviceIdentityRepository,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
     private var cacheSizeJob: Job? = null
@@ -63,6 +65,7 @@ class TweaksViewModel(
                     loadLiquidGlassEnabled()
                     loadHideSeenEnabled()
                     loadScrollbarEnabled()
+                    loadTelemetryEnabled()
 
                     observeShizukuStatus()
 
@@ -259,6 +262,16 @@ class TweaksViewModel(
             tweaksRepository.getScrollbarEnabled().collect { enabled ->
                 _state.update {
                     it.copy(isScrollbarEnabled = enabled)
+                }
+            }
+        }
+    }
+
+    private fun loadTelemetryEnabled() {
+        viewModelScope.launch {
+            tweaksRepository.getTelemetryEnabled().collect { enabled ->
+                _state.update {
+                    it.copy(isTelemetryEnabled = enabled)
                 }
             }
         }
@@ -510,6 +523,19 @@ class TweaksViewModel(
                 browserHelper.openUrl(
                     url = "https://github.com/OpenHub-Store/GitHub-Store/issues",
                 )
+            }
+
+            is TweaksAction.OnTelemetryToggled -> {
+                viewModelScope.launch {
+                    tweaksRepository.setTelemetryEnabled(action.enabled)
+                }
+            }
+
+            TweaksAction.OnResetAnalyticsId -> {
+                viewModelScope.launch {
+                    deviceIdentityRepository.resetDeviceId()
+                    _events.send(TweaksEvent.OnAnalyticsIdReset)
+                }
             }
         }
     }

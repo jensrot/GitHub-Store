@@ -1,5 +1,6 @@
 package zed.rainxch.githubstore.app.di
 
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import zed.rainxch.apps.presentation.AppsViewModel
@@ -18,7 +19,33 @@ val viewModelsModule =
     module {
         viewModelOf(::AppsViewModel)
         viewModelOf(::AuthenticationViewModel)
-        viewModelOf(::DetailsViewModel)
+        viewModel { params ->
+            DetailsViewModel(
+                repositoryId = params.get(),
+                ownerParam = params.get(),
+                repoParam = params.get(),
+                isComingFromUpdate = params.get(),
+                detailsRepository = get(),
+                downloader = get(),
+                installer = get(),
+                platform = get(),
+                helper = get(),
+                shareManager = get(),
+                installedAppsRepository = get(),
+                favouritesRepository = get(),
+                starredRepository = get(),
+                packageMonitor = get(),
+                syncInstalledAppsUseCase = get(),
+                translationRepository = get(),
+                logger = get(),
+                tweaksRepository = get(),
+                seenReposRepository = get(),
+                installationManager = get(),
+                attestationVerifier = get(),
+                downloadOrchestrator = get(),
+                telemetryRepository = get(),
+            )
+        }
         viewModelOf(::DeveloperProfileViewModel)
         viewModelOf(::FavouritesViewModel)
         viewModelOf(::HomeViewModel)

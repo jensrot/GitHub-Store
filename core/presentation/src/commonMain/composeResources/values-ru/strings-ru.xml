@@ -158,7 +158,7 @@
     <string name="issues">Проблемы</string>
     <string name="downloads">Загрузки</string>
     <string name="license">Лицензия</string>
-    <string name="license_none">Нет</string>
+    <string name="license_none">—</string>
     <string name="fetch_more_from_github">Найти ещё на GitHub</string>
     <string name="fetching_from_github">Поиск на GitHub…</string>
     <string name="no_more_github_results">Больше результатов на GitHub нет</string>
@@ -583,6 +583,12 @@
     <string name="clear_seen_history_description">Сбросить все просмотренные репозитории, чтобы они снова появились в лентах</string>
     <string name="seen_history_cleared">История просмотров очищена</string>
     <string name="seen_badge">Просмотрено</string>
+    <string name="privacy_section">Конфиденциальность</string>
+    <string name="telemetry_title">Помочь улучшить поиск</string>
+    <string name="telemetry_description">Отправлять анонимные данные об использовании (поиски, установки) для улучшения рекомендаций. Личная информация не собирается.</string>
+    <string name="reset_analytics_id_title">Сбросить ID аналитики</string>
+    <string name="reset_analytics_id_description">Сгенерировать новый анонимный ID, разорвав связь с прошлой телеметрией.</string>
+    <string name="analytics_id_reset">ID аналитики сброшен</string>
 
     <string name="recently_viewed">Недавно просмотренные</string>
     <string name="profile_recently_viewed_description">Репозитории, которые вы посещали</string>
