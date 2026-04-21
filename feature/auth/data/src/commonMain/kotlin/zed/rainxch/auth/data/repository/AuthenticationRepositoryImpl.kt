@@ -327,8 +327,10 @@ class AuthenticationRepositoryImpl(
             }
 
             else -> {
-                logger.debug("⚠️ Single poll unknown error: $errorMsg")
-                DevicePollResult.Pending
+                logger.debug("❌ Single poll unrecognized error — surfacing as Failed: $errorMsg")
+                DevicePollResult.Failed(
+                    error ?: Exception("Authentication failed: unknown error"),
+                )
             }
         }
     }
