@@ -189,7 +189,7 @@ fun ProfileScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(16.dp)
-                    .arrowKeyScroll(listState),
+                    .arrowKeyScroll(listState, autoFocus = true),
         ) {
             profile(
                 state = state,

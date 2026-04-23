@@ -134,7 +134,7 @@ fun DeveloperProfileScreen(
                     ) {
                         LazyColumn(
                             state = listState,
-                            modifier = Modifier.fillMaxSize().arrowKeyScroll(listState),
+                            modifier = Modifier.fillMaxSize().arrowKeyScroll(listState, autoFocus = true),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {

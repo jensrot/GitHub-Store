@@ -104,7 +104,7 @@ fun RecentlyViewedScreen(
                     verticalItemSpacing = 12.dp,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
-                    modifier = Modifier.fillMaxSize().arrowKeyScroll(gridState),
+                    modifier = Modifier.fillMaxSize().arrowKeyScroll(gridState, autoFocus = true),
                 ) {
                     items(
                         items = state.repositories,

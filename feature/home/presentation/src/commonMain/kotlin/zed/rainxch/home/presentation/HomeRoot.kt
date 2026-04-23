@@ -395,7 +395,7 @@ private fun MainState(
                     top = 12.dp,
                     bottom = bottomNavHeight + 32.dp,
                 ),
-            modifier = Modifier.fillMaxSize().arrowKeyScroll(listState),
+            modifier = Modifier.fillMaxSize().arrowKeyScroll(listState, autoFocus = true),
         ) {
             items(
                 items = visibleRepos,

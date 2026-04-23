@@ -427,7 +427,7 @@ fun DetailsScreen(
                                 .fillMaxHeight()
                                 .widthIn(max = 680.dp)
                                 .fillMaxWidth()
-                                .arrowKeyScroll(listState)
+                                .arrowKeyScroll(listState, autoFocus = true)
                                 .then(
                                     if (state.isLiquidGlassEnabled) {
                                         Modifier.liquefiable(liquidTopbarState)

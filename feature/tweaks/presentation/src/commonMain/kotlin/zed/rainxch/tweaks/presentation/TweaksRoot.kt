@@ -205,7 +205,7 @@ fun TweaksScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(16.dp)
-                    .arrowKeyScroll(listState),
+                    .arrowKeyScroll(listState, autoFocus = true),
         ) {
             settings(
                 state = state,

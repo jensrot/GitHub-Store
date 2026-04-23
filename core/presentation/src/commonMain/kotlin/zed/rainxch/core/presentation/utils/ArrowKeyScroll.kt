@@ -22,10 +22,13 @@ import kotlinx.coroutines.launch
 private const val ARROW_STEP_PX = 120f
 private const val PAGE_STEP_FRACTION = 0.9f
 
+// When `autoFocus = true`, the modifier requests keyboard focus on first
+// composition so arrow keys work without a prior click/tab. Pass `false` on
+// screens where a TextField should keep focus (e.g. search inputs).
 @Composable
 fun Modifier.arrowKeyScroll(
     listState: LazyListState,
-    autoFocus: Boolean = true,
+    autoFocus: Boolean = false,
 ): Modifier =
     arrowKeyScrollInternal(
         autoFocus = autoFocus,
@@ -35,13 +38,17 @@ fun Modifier.arrowKeyScroll(
         scrollToBottom = {
             val last = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
             listState.animateScrollToItem(last)
+            // `animateScrollToItem` aligns the target to the viewport start,
+            // which can leave empty space after the last item. A follow-up
+            // large-delta scroll is clamped to the real end.
+            listState.animateScrollBy(Float.MAX_VALUE)
         },
     )
 
 @Composable
 fun Modifier.arrowKeyScroll(
     gridState: LazyStaggeredGridState,
-    autoFocus: Boolean = true,
+    autoFocus: Boolean = false,
 ): Modifier =
     arrowKeyScrollInternal(
         autoFocus = autoFocus,
@@ -51,13 +58,14 @@ fun Modifier.arrowKeyScroll(
         scrollToBottom = {
             val last = (gridState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
             gridState.animateScrollToItem(last)
+            gridState.animateScrollBy(Float.MAX_VALUE)
         },
     )
 
 @Composable
 fun Modifier.arrowKeyScroll(
     scrollState: ScrollState,
-    autoFocus: Boolean = true,
+    autoFocus: Boolean = false,
 ): Modifier =
     arrowKeyScrollInternal(
         autoFocus = autoFocus,
