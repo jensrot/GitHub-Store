@@ -17,18 +17,18 @@
   <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Linux/linux2.svg" />
   <br/>
   <br/>
-  <a href="https://github.com/OpenHub-Store/GitHub-Store/releases/latest">
-    <img src="https://api.github-store.org/v1/badge/OpenHub-Store/GitHub-Store/downloads/5/2" width="100" />
-  </a>
-  <a href="https://github.com/OpenHub-Store/GitHub-Store/stargazers">
-    <img src="https://m3-markdown-badges.vercel.app/stars/3/2/OpenHub-Store/GitHub-Store" />
-  </a>
-  <a href="https://github.com/OpenHub-Store/GitHub-Store/issues">
-    <img src="https://m3-markdown-badges.vercel.app/issues/1/2/OpenHub-Store/GitHub-Store" />
-  </a>
-  <a href="https://github.com/OpenHub-Store/GitHub-Store/releases/latest">
-    <img src="https://api.github-store.org/v1/badge/OpenHub-Store/GitHub-Store/release/9/1" width="100" />
-  </a>
+ <a href="https://github.com/OpenHub-Store/GitHub-Store/releases/latest">
+  <img src="https://api.github-store.org/v1/badge/OpenHub-Store/GitHub-Store/downloads/5/2" alt="Downloads"/>
+</a>
+<a href="https://github.com/OpenHub-Store/GitHub-Store/stargazers">
+  <img src="https://m3-markdown-badges.vercel.app/stars/3/2/OpenHub-Store/GitHub-Store" alt="Stars"/>
+</a>
+<a href="https://github.com/OpenHub-Store/GitHub-Store/issues">
+  <img src="https://m3-markdown-badges.vercel.app/issues/1/2/OpenHub-Store/GitHub-Store" alt="Issues"/>
+</a>
+<a href="https://github.com/OpenHub-Store/GitHub-Store/releases/latest">
+  <img src="https://api.github-store.org/v1/badge/OpenHub-Store/GitHub-Store/release/9/1" alt="Latest release"/>
+</a>
 </p>
 
 <table align="center">
